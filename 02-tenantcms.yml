@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tenantcms
+  labels:
+    app: tenantcms
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30001
+      name: tcms-port
+  selector:
+    app: tenantcms
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenantcms-dep
+  labels:
+    app: tenantcms
+spec:
+  selector:
+    matchLabels:
+      app: tenantcms
+  template:
+    metadata:
+      labels:
+        app: tenantcms
+    spec:
+      containers:
+      - name: fv-tenantcms
+        imagePullPolicy: IfNotPresent
+        image: fv-tcms-dev:latest
+        ports:
+        - containerPort: 8080
+          name: tntcms-port
+        env:
+        - name: REPOSITORY_PROPERTY_FILE_LOCATION
+          value: "/usr/local/tomcat/conf/"
+        - name: CMIS_REPO_JSON_LOCATION
+          value: "/usr/local/tomcat/conf/dev.tenant-repo.json"
+        - name: SWAGGER_CMIS_SESSION_CONNECTION_URL
+          value: "http://localhost:8080/tenant-cms/"
+        - name: CUSTOM_TYPE_HAS_FOLDER
+          value: "1"
+        - name: SYNC_CMIS_SESSION_CONNECTION_URL
+          value: "http://localhost:8080/tenant-cms/"
+        - name: CMIS_USERNAME
+          value: "admin"
+        - name: CMIS_PASSWORD
+          value: "sZc8UP2xx2Hj7UZL"

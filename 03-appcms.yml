@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: appcms
+  labels:
+    app: appcms
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30003
+      name: appcms-port
+  selector:
+    app: appcms
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appcms-dep
+  labels:
+    app: appcms
+spec:
+  selector:
+    matchLabels:
+      app: appcms
+  template:
+    metadata:
+      labels:
+        app: appcms
+    spec:
+      containers:
+      - name: fv-appcms
+        imagePullPolicy: IfNotPresent
+        image: fv-appcms-dev:latest
+        ports:
+        - containerPort: 8080
+          name: appcms-port
+        env:
+        - name: REPOSITORY_PROPERTY_FILE_LOCATION
+          value: "/usr/local/tomcat/conf/"
+        - name: SWAGGER_CMIS_SESSION_CONNECTION_URL
+          value: "http://localhost:8080/app-cms/"
+        - name: SYNC_CMIS_SESSION_CONNECTION_URL
+          value: "http://localhost:8080/app-cms/"
+        - name: CMIS_WHITELIST_URL
+          value: "http://localhost:3000,http://localhost:3001,file://"
+        - name: CUSTOM_TYPE_HAS_FOLDER
+          value: "1"
+        - name: CMIS_APP_USERNAME
+          value: "admin"
+        - name: CMIS_APP_PASSWORD
+          value: "admin123"
+        - name: CMIS_APP_REPOSITORY_ID
+          value: "Tenant"
+        - name: CMIS_APP_CONNECTION_URL
+          value: "http://tenantcms:8080/tenant-cms/"
+        - name: COGNITO_BACKEND_USERNAME
+          value: "a5521684-e1af-467a-b30b-396e22dd9d7b"
